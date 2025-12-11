@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายชื่อพนักงาน</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        /* Login Screen */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            border-radius: 20px;
+            padding: 50px 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .login-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+
+        .login-title {
+            font-size: 2rem;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .login-subtitle {
+            color: #718096;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-label {
+            display: block;
+            color: #4a5568;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            color: #e53e3e;
+            background: #fff5f5;
+            border: 1px solid #feb2b2;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+            font-size: 0.95rem;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* Main Content */
+        .main-content {
+            display: none;
+        }
+
+        .main-content.show {
+            display: block;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 50px;
+        }
+
+        h1 {
+            color: white;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .logout-button {
+            padding: 12px 25px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-button:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .department {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .department-title {
+            font-size: 1.8rem;
+            color: #667eea;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .employee-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .employee-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .employee-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+
+        .employee-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .employee-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .employee-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .employee-nickname {
+            font-size: 1.1rem;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        .employee-info {
+            text-align: left;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #4a5568;
+            min-width: 80px;
+        }
+
+        .info-value {
+            color: #2d3748;
+        }
+
+        .phone {
+            color: #667eea;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-container" id="loginScreen">
+        <div class="login-box">
+            <div class="login-icon">🔒</div>
+            <h2 class="login-title">เข้าสู่ระบบ</h2>
+            <p class="login-subtitle">กรุณาใส่รหัสผ่านเพื่อเข้าดูรายชื่อพนักงาน</p>
+            
+            <div class="input-group">
+                <label class="input-label">รหัสผ่าน</label>
+                <input 
+                    type="password" 
+                    class="input-field" 
+                    id="passwordInput" 
+                    placeholder="ใส่รหัสผ่าน"
+                    autocomplete="off"
+                >
+            </div>
+            
+            <button class="login-button" onclick="checkPassword()">เข้าสู่ระบบ</button>
+            
+            <div class="error-message" id="errorMessage">
+                ❌ รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <div class="container">
+            <div class="header">
+                <h1>📋 รายชื่อพนักงาน</h1>
+                <button class="logout-button" onclick="logout()">ออกจากระบบ</button>
+            </div>
+
+            <!-- แผนกแม่บ้าน -->
+            <div class="department">
+                <h2 class="department-title">🏢 แผนก หัวหน้า</h2>
+                <div class="employee-grid">
+                    <div class="employee-card">
+                        <div class="employee-photo">
+                            <img src="image/Bua.png" alt="Tangmo">
+                        </div>
+                        <div class="employee-name">	บัวทิพย์ จะวะนะ</div>
+                        <div class="employee-nickname">(พี่บัว)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง:</span>
+                                <span class="info-value">Assistant Operation Manager</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์:</span>
+                                <span class="info-value phone"> - </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- แผนกบริหาร -->
+            <div class="department">
+                <h2 class="department-title">🏢 หัวหน้าทีม</h2>
+                <div class="employee-grid">
+                    <div class="employee-card">
+                        <div class="employee-photo">
+                            <img src="image/Tangmo.png" alt="Tangmo">
+                        </div>
+                        <div class="employee-name">	ณัฐฐากร วรรณูปถัมภ์</div>
+                        <div class="employee-nickname">(แตงโม)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง:</span>
+                                <span class="info-value">Network Engineer</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์:</span>
+                                <span class="info-value phone">089-683-4387</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="employee-card">
+                        <div class="employee-photo">
+                            <img src="image/Peach.png" alt="Peach">
+                        </div>
+                        <div class="employee-name">เมธาวี มั่นเมือง</div>
+                        <div class="employee-nickname">(พีส)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง:</span>
+                                <span class="info-value">IT SUPPORT</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์:</span>
+                                <span class="info-value phone">066-136-6479</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- แผนกขาย -->
+            <div class="department">
+                <h2 class="department-title">💻 แผนก Oper</h2>
+                <div class="employee-grid">
+                    <div class="employee-card">
+                        <div class="employee-photo">
+                            <img src="image/Aip.png" alt="Aip">
+                        </div>
+                        <div class="employee-name">กมลชนก ชลมารค</div>
+                        <div class="employee-nickname">(อีฟ)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง:</span>
+                                <span class="info-value">Data Center Officer</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์:</span>
+                                <span class="info-value phone"> รออัพเดท </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="employee-card">
+                        <div class="employee-photo">
+                            <img src="image/Best.png" alt="Best">
+                        </div>
+                        <div class="employee-name">ประกาศิต บุญถือ</div>
+                        <div class="employee-nickname">(เบส)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง:</span>
+                                <span class="info-value">Data Center Officer</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์:</span>
+                                <span class="info-value phone">087-754-1384</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="employee-card">
+                        <div class="employee-photo">
+                            <img src="image/Nut.png" alt="Nut">
+                        </div>
+                        <div class="employee-name">อธิษฐ์ ม่วงรัตน์</div>
+                        <div class="employee-nickname">(นัท)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง:</span>
+                                <span class="info-value">Data Center Officer</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์:</span>
+                                <span class="info-value phone">รออัพเดท</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="employee-card">
+                        <div class="employee-photo">
+                            <img src="image/Dome.png" alt="Dome">
+                        </div>
+                        <div class="employee-name">ณัฐกิตติ์ มัชวงศ์</div>
+                        <div class="employee-nickname">(โดม)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง:</span>
+                                <span class="info-value">Data Center Officer</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์:</span>
+                                <span class="info-value phone">082-095-6145</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="employee-card">
+                        <div class="employee-photo">
+                            <img src="image/Ball.png" alt="Ball">
+                        </div>
+                        <div class="employee-name">	จิรพัฒน์ แจ่มสกุล</div>
+                        <div class="employee-nickname">(บอล)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง:</span>
+                                <span class="info-value">Data Center Officer</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์:</span>
+                                <span class="info-value phone">083-428-6879</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="employee-card">
+                        <div class="employee-photo">
+                            <img src="image/Nut.png" alt="Nut">
+                        </div>
+                        <div class="employee-name">สุรศักดิ์ เสมเสวตร์</div>
+                        <div class="employee-nickname">(อ๊อฟ)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง:</span>
+                                <span class="info-value">Data Center Officer</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์:</span>
+                                <span class="info-value phone">095-243-8951</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- แผนกบัญชี -->
+            <div class="department">
+                <h2 class="department-title">📡 แผนก NOC</h2>
+                <div class="employee-grid">
+                    <div class="employee-card">
+                        <div class="employee-photo">
+                            <img src="image/Ice.png" alt="Ice">
+                        </div>
+                        <div class="employee-name">จักรภัทร จัลวรรณา</div>
+                        <div class="employee-nickname">(ไอซ์)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง:</span>
+                                <span class="info-value">Network Operation Center</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์:</span>
+                                <span class="info-value phone">082-821-8779</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- แผนก IT -->
+            <div class="department">
+                <h2 class="department-title">💻 แผนกTechnical</h2>
+                <div class="employee-grid">
+                    <div class="employee-card">
+                        <div class="employee-photo">
+                            <img src="image/Mom.png" alt="Mom">
+                        </div>
+                        <div class="employee-name">	จักรพล แซ่ล้อ</div>
+                        <div class="employee-nickname">(หม่ำ)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง:</span>
+                                <span class="info-value">Technical Support</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์:</span>
+                                <span class="info-value phone">080-138-3636</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const correctPassword = 'SkyTe@m';
+
+        // ตรวจสอบรหัสผ่าน
+        function checkPassword() {
+            const input = document.getElementById('passwordInput');
+            const errorMsg = document.getElementById('errorMessage');
+            
+            if (input.value === correctPassword) {
+                // รหัสถูกต้อง - แสดงหน้าหลัก
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainContent').classList.add('show');
+                errorMsg.classList.remove('show');
+            } else {
+                // รหัสผิด - แสดงข้อความผิดพลาด
+                errorMsg.classList.add('show');
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        // ออกจากระบบ
+        function logout() {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('mainContent').classList.remove('show');
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('errorMessage').classList.remove('show');
+        }
+
+        // กด Enter เพื่อ Login
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+    </script>
+</body>
+</html>
