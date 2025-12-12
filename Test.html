@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sky Team - Employee Directory</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
+            min-height: 100vh;
+        }
+
+        /* Login Screen */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            top: -250px;
+            right: -250px;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .login-container::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            bottom: -200px;
+            left: -200px;
+            animation: float 10s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(30px, 30px); }
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 60px 50px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-section {
+            margin-bottom: 40px;
+        }
+
+        .login-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            border-radius: 20px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+        }
+
+        .login-title {
+            font-size: 2rem;
+            color: white;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .login-subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 40px;
+            font-size: 0.95rem;
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .input-label {
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            font-size: 1rem;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .input-field::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .input-field:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(139, 92, 246, 0.4);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            color: #fca5a5;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 14px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+            font-size: 0.9rem;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* Main Content */
+        .main-content {
+            display: none;
+        }
+
+        .main-content.show {
+            display: block;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px 40px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .navbar-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-link {
+            padding: 10px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .logout-button {
+            padding: 10px 24px;
+            background: rgba(239, 68, 68, 0.2);
+            color: white;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-button:hover {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: rgba(239, 68, 68, 0.6);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        .department {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 35px;
+            margin-bottom: 35px;
+        }
+
+        .department-title {
+            font-size: 1.6rem;
+            color: white;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(139, 92, 246, 0.3);
+            font-weight: 700;
+        }
+
+        .employee-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .employee-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 28px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .employee-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .employee-photo {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
+            overflow: hidden;
+        }
+
+        .employee-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .employee-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .employee-nickname {
+            font-size: 1rem;
+            color: rgba(139, 92, 246, 0.9);
+            margin-bottom: 18px;
+            font-style: italic;
+        }
+
+        .employee-info {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 18px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .info-value {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .phone {
+            color: #a78bfa;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-container" id="loginScreen">
+        <div class="login-box">
+            <div class="logo-section">
+                <div class="login-icon">🚀</div>
+                <h2 class="login-title">Sky Team</h2>
+                <p class="login-subtitle">Employee Management System</p>
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">รหัสผ่าน</label>
+                <input 
+                    type="password" 
+                    class="input-field" 
+                    id="passwordInput" 
+                    placeholder="กรอกรหัสผ่านของคุณ"
+                    autocomplete="off"
+                >
+            </div>
+            
+            <button class="login-button" onclick="checkPassword()">เข้าสู่ระบบ</button>
+            
+            <div class="error-message" id="errorMessage">
+                ❌ รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <div class="navbar">
+            <div class="navbar-content">
+                <div class="navbar-left">
+                    <div class="navbar-title">🚀 Sky Team</div>
+                    <div class="nav-links">
+                        <a href="#" class="nav-link active">👥 รายชื่อพนักงาน</a>
+                        <a href="javascript:openOrgChart()" class="nav-link">📊 แผนผังองค์กร</a>
+                    </div>
+                </div>
+                <button class="logout-button" onclick="logout()">ออกจากระบบ</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="department">
+                <h2 class="department-title">💻 ทีม Oper</h2>
+                <div class="employee-grid">
+                    <div class="employee-card">
+                        <div class="employee-photo">
+                            <img src="image/Bua.png" alt="Bua">
+                        </div>
+                        <div class="employee-name">บัวทิพย์ จะวะนะ</div>
+                        <div class="employee-nickname">(พี่บัว)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง</span>
+                                <span class="info-value">หัวหน้าฝ่าย Oper</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์</span>
+                                <span class="info-value phone">รออัพเดท</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="employee-card">
+                        <div class="employee-photo">
+                            <img src="image/Aip.png" alt="Aip">
+                        </div>
+                        <div class="employee-name">กมลชนก ชลมารค</div>
+                        <div class="employee-nickname">(อีฟ)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง</span>
+                                <span class="info-value">Data Center Officer</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์</span>
+                                <span class="info-value phone">รออัพเดท</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="employee-card">
+                        <div class="employee-photo">
+                            <img src="image/Best.png" alt="Best">
+                        </div>
+                        <div class="employee-name">ประกาศิต บุญถือ</div>
+                        <div class="employee-nickname">(เบส)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง</span>
+                                <span class="info-value">Data Center Officer</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์</span>
+                                <span class="info-value phone">087-754-1384</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="employee-card">
+                        <div class="employee-photo">
+                            <img src="image/Nut.png" alt="Nut">
+                        </div>
+                        <div class="employee-name">อธิษฐ์ ม่วงรัตน์</div>
+                        <div class="employee-nickname">(นัท)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง</span>
+                                <span class="info-value">Data Center Officer</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์</span>
+                                <span class="info-value phone">096-943-8053</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="employee-card">
+                        <div class="employee-photo">
+                            <img src="image/Aof.png" alt="Aof">
+                        </div>
+                        <div class="employee-name">สุรศักดิ์ เสมเสวตร์</div>
+                        <div class="employee-nickname">(อ๊อฟ)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง</span>
+                                <span class="info-value">Data Center Officer</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์</span>
+                                <span class="info-value phone">095-243-8951</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="department">
+                <h2 class="department-title">📡 ทีม NOC</h2>
+                <div class="employee-grid">
+                    <div class="employee-card">
+                        <div class="employee-photo">ช</div>
+                        <div class="employee-name">ชาลทอง อัตถากรโกวิท</div>
+                        <div class="employee-nickname">(พี่ชาย)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง</span>
+                                <span class="info-value">หัวหน้าฝ่าย NOC</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์</span>
+                                <span class="info-value phone">รออัพเดท</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="employee-card">
+                        <div class="employee-photo">
+                            <img src="image/Ice.png" alt="Ice">
+                        </div>
+                        <div class="employee-name">จักรภัทร จัลวรรณา</div>
+                        <div class="employee-nickname">(ไอซ์)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง</span>
+                                <span class="info-value">Network Operation Center</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์</span>
+                                <span class="info-value phone">082-821-8779</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="department">
+                <h2 class="department-title">🗡 ทีม PEA</h2>
+                <div class="employee-grid">
+                    <div class="employee-card">
+                        <div class="employee-photo">
+                            <img src="image/Peach.png" alt="Peach">
+                        </div>
+                        <div class="employee-name">เมธาวี มั่นเมือง</div>
+                        <div class="employee-nickname">(พีช)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง</span>
+                                <span class="info-value">Hunter Rank S</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์</span>
+                                <span class="info-value phone">066-136-6479</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="employee-card">
+                        <div class="employee-photo">
+                            <img src="image/Ban.jpg" alt="Ban">
+                        </div>
+                        <div class="employee-name">พลพร พยอมหอม</div>
+                        <div class="employee-nickname">(พี่ไปร์ท)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง</span>
+                                <span class="info-value">ด๊อบบี้ เอลฟ์ประจำบ้าน</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์</span>
+                                <span class="info-value phone">062-325-5594</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="employee-card">
+                        <div class="employee-photo">
+                            <img src="image/Dome.png" alt="Dome">
+                        </div>
+                        <div class="employee-name">ณัฐกิตติ์ มัชวงศ์</div>
+                        <div class="employee-nickname">(โดม)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง</span>
+                                <span class="info-value">Data Center Officer</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์</span>
+                                <span class="info-value phone">082-095-6145</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="department">
+                <h2 class="department-title">🏢 ทีม LPS Project</h2>
+                <div class="employee-grid">
+                    <div class="employee-card">
+                        <div class="employee-photo">ต</div>
+                        <div class="employee-name">พิสณห์ ชาญเวช</div>
+                        <div class="employee-nickname">(พี่ต้น)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง</span>
+                                <span class="info-value">หัวหน้าฝ่าย LPS Project</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์</span>
+                                <span class="info-value phone">095-445-4636</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="employee-card">
+                        <div class="employee-photo">
+                            <img src="image/Tangmo.png" alt="Tangmo">
+                        </div>
+                        <div class="employee-name">ณัฐฐากร วรรณูปถัมภ์</div>
+                        <div class="employee-nickname">(แตงโม)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง</span>
+                                <span class="info-value">Network Engineer</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์</span>
+                                <span class="info-value phone">089-683-4387</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="employee-card">
+                        <div class="employee-photo">
+                            <img src="image/Ball.png" alt="Ball">
+                        </div>
+                        <div class="employee-name">จิรพัฒน์ แจ่มสกุล</div>
+                        <div class="employee-nickname">(บอล)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง</span>
+                                <span class="info-value">Data Center Officer</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์</span>
+                                <span class="info-value phone">083-428-6879</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="department">
+                <h2 class="department-title">💻 ทีม Unmanned Station</h2>
+                <div class="employee-grid">
+                    <div class="employee-card">
+                        <div class="employee-photo">ย</div>
+                        <div class="employee-name">ไชยยง แววพหูสูต</div>
+                        <div class="employee-nickname">(พี่ยง)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง</span>
+                                <span class="info-value">Project Engineer</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์</span>
+                                <span class="info-value phone">รออัพเดท</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="employee-card">
+                        <div class="employee-photo">น</div>
+                        <div class="employee-name">ณัฐวุฒิ พลกูล</div>
+                        <div class="employee-nickname">(พี่นัด)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง</span>
+                                <span class="info-value">Engineer</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์</span>
+                                <span class="info-value phone">รออัพเดท</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="employee-card">
+                        <div class="employee-photo">
+                            <img src="image/Mom.png" alt="Mom">
+                        </div>
+                        <div class="employee-name">จักรพล แซ่ล้อ</div>
+                        <div class="employee-nickname">(พี่หม่ำ)</div>
+                        <div class="employee-info">
+                            <div class="info-row">
+                                <span class="info-label">ตำแหน่ง</span>
+                                <span class="info-value">Technical Support</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">เบอร์</span>
+                                <span class="info-value phone">080-138-3636</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const correctPassword = 'SkyTe@m';
+
+        function checkPassword() {
+            const input = document.getElementById('passwordInput');
+            const errorMsg = document.getElementById('errorMessage');
+            
+            if (input.value === correctPassword) {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainContent').classList.add('show');
+                errorMsg.classList.remove('show');
+            } else {
+                errorMsg.classList.add('show');
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        function logout() {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('mainContent').classList.remove('show');
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('errorMessage').classList.remove('show');
+        }
+
+        function openOrgChart() {
+            window.location.href = 'org-chart.html';
+        }
+
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+    </script>
+</body>

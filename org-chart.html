@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบแผนผังองค์กร</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
+        }
+
+        .header {
+            background: white;
+            padding: 16px 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 1000;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-left h1 {
+            font-size: 24px;
+            color: #1e293b;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-add {
+            background: #9333ea;
+            color: white;
+        }
+
+        .btn-add:hover {
+            background: #7e22ce;
+        }
+
+        .btn-clear {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-clear:hover {
+            background: #dc2626;
+        }
+
+        .canvas {
+            position: relative;
+            width: 100%;
+            height: calc(100vh - 80px);
+            cursor: move;
+            overflow: hidden;
+        }
+
+        .employee-card {
+            position: absolute;
+            width: 240px;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            cursor: move;
+            transition: box-shadow 0.2s;
+            color: white;
+            z-index: 10;
+        }
+
+        .employee-card:hover {
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        }
+
+        .employee-card.connecting {
+            border: 3px solid gold;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .employee-card h3 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .employee-card p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .card-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .card-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+        .btn-connect {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .btn-connect:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .btn-delete {
+            background: rgba(239,68,68,0.8);
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: rgba(220,38,38,1);
+        }
+
+        #connectionSvg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .instructions {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-width: 280px;
+            z-index: 100;
+        }
+
+        .instructions h3 {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #1e293b;
+        }
+
+        .instructions ul {
+            list-style: none;
+            font-size: 12px;
+            color: #475569;
+        }
+
+        .instructions li {
+            margin: 4px 0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 16px;
+            color: #1e293b;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .status-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #eab308;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 999px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+            animation: pulse 1s infinite;
+            display: none;
+        }
+
+        .status-bar.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9333ea" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <h1>ระบบแผนผังองค์กร</h1>
+        </div>
+        <div class="header-right">
+            <button class="btn btn-Home" onclick="goToHomepage()">
+                <span>🏠</span> กลับหน้าแรก
+            </button>
+            <button class="btn btn-add" onclick="showAddModal()">
+                <span>➕</span> เพิ่มพนักงาน
+            </button>
+            <button class="btn btn-clear" onclick="clearAllConnections()">
+                <span>✖</span> ลบเส้นทั้งหมด
+            </button>
+        </div>
+    </div>
+
+    <div class="instructions">
+        <h3>📋 วิธีใช้งาน:</h3>
+        <ul>
+            <li>🖱️ ลากการ์ด: คลิกค้างแล้วลาก</li>
+            <li>🔗 เชื่อมเส้น: กดปุ่ม "เชื่อม" 2 ครั้ง</li>
+            <li>👆 เลื่อนดู: ลากพื้นหลัง</li>
+            <li>➕ เพิ่ม/ลบ: ใช้ปุ่มด้านบน</li>
+        </ul>
+    </div>
+
+    <div class="canvas" id="canvas">
+        <svg id="connectionSvg">
+            <defs>
+                <marker id="arrowhead" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto">
+                    <polygon points="0 0, 12 4, 0 8" fill="#ef4444" />
+                </marker>
+            </defs>
+        </svg>
+    </div>
+
+    <div class="status-bar" id="statusBar">
+        🔗 คลิกการ์ดปลายทางเพื่อเชื่อมเส้น
+    </div>
+
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <h3>เพิ่มพนักงานใหม่</h3>
+            <input type="text" id="empName" placeholder="ชื่อ-นามสกุล">
+            <input type="text" id="empPosition" placeholder="ตำแหน่ง">
+            <div class="modal-buttons">
+                <button class="btn btn-add" style="flex: 1" onclick="addEmployee()">เพิ่ม</button>
+                <button class="btn btn-Home" style="flex: 1; background-color: green;" onclick="addEmployee()">เพิ่ม</button>
+                <button class="btn" style="flex: 1; background: #94a3b8; color: white" onclick="hideAddModal()">ยกเลิก</button>
+            </div>
+        </div>
+    </div>=
+
+    <script>
+        const colors = ['#9333ea', '#3b82f6', '#10b981', '#ec4899', '#f97316', '#ef4444', '#6366f1', '#14b8a6', '#eab308'];
+        
+        let employees = [
+            { id: 1, name: 'ธนพล วงศ์สุวรรณ', position: 'CEO', x: 400, y: 50, color: colors[0] },
+            { id: 2, name: 'สมหญิง ใจดี', position: 'CFO', x: 200, y: 200, color: colors[1] },
+            { id: 3, name: 'วิชัย มั่นคง', position: 'CTO', x: 600, y: 200, color: colors[2] },
+            { id: 4, name: 'นภา สว่างศรี', position: 'HR Manager', x: 100, y: 350, color: colors[3] },
+            { id: 5, name: 'ประวิทย์ แก้วใส', position: 'Dev Lead', x: 500, y: 350, color: colors[4] },
+        ];
+
+        let connections = [
+            { from: 1, to: 2 },
+            { from: 1, to: 3 },
+            { from: 2, to: 4 },
+            { from: 3, to: 5 },
+        ];
+
+        let draggedEmployee = null;
+        let offset = { x: 0, y: 0 };
+        let isPanning = false;
+        let panOffset = { x: 0, y: 0 };
+        let panStart = { x: 0, y: 0 };
+        let connectingFrom = null;
+
+        const canvas = document.getElementById('canvas');
+
+        function render() {
+            // Clear existing cards
+            const existingCards = document.querySelectorAll('.employee-card');
+            existingCards.forEach(card => card.remove());
+
+            // Render employees
+            employees.forEach(emp => {
+                const card = document.createElement('div');
+                card.className = 'employee-card';
+                if (connectingFrom === emp.id) card.classList.add('connecting');
+                card.style.left = (emp.x + panOffset.x) + 'px';
+                card.style.top = (emp.y + panOffset.y) + 'px';
+                card.style.backgroundColor = emp.color;
+                card.dataset.id = emp.id;
+
+                card.innerHTML = `
+                    <h3>${emp.name}</h3>
+                    <p>${emp.position}</p>
+                    <div class="card-buttons">
+                        <button class="card-btn btn-connect" onclick="handleConnect(${emp.id}, event)">🔗 เชื่อม</button>
+                        <button class="card-btn btn-delete" onclick="handleDelete(${emp.id}, event)">🗑️ ลบ</button>
+                    </div>
+                `;
+
+                card.addEventListener('mousedown', (e) => {
+                    if (e.target.tagName !== 'BUTTON') {
+                        startDrag(e, emp);
+                    }
+                });
+
+                canvas.appendChild(card);
+            });
+
+            renderConnections();
+        }
+
+        function renderConnections() {
+            const svg = document.getElementById('connectionSvg');
+            svg.innerHTML = `
+                <defs>
+                    <marker id="arrowhead" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto">
+                        <polygon points="0 0, 12 4, 0 8" fill="#ef4444" />
+                    </marker>
+                </defs>
+            `;
+
+            connections.forEach(conn => {
+                const from = employees.find(e => e.id === conn.from);
+                const to = employees.find(e => e.id === conn.to);
+                if (!from || !to) return;
+
+                const x1 = from.x + 120 + panOffset.x;
+                const y1 = from.y + 60 + panOffset.y;
+                const x2 = to.x + 120 + panOffset.x;
+                const y2 = to.y + 60 + panOffset.y;
+
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', x1);
+                line.setAttribute('y1', y1);
+                line.setAttribute('x2', x2);
+                line.setAttribute('y2', y2);
+                line.setAttribute('stroke', '#ef4444');
+                line.setAttribute('stroke-width', '4');
+                line.setAttribute('marker-end', 'url(#arrowhead)');
+
+                svg.appendChild(line);
+            });
+        }
+
+        function goToHomepage() {
+            // คำสั่งนี้จะเปลี่ยนหน้าปัจจุบันไปยัง 'index.html'
+            window.location.href = 'index.html'; 
+            // ถ้าต้องการให้เปลี่ยนหน้าแบบไม่เก็บประวัติการเข้าชม (ไม่สามารถกดปุ่มย้อนกลับได้)
+            // สามารถใช้: window.location.replace('index.html'); แทนได้
+        }
+
+        function startDrag(e, emp) {
+            draggedEmployee = emp.id;
+            const rect = canvas.getBoundingClientRect();
+            offset.x = e.clientX - rect.left - emp.x - panOffset.x;
+            offset.y = e.clientY - rect.top - emp.y - panOffset.y;
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            if (e.target === canvas || e.target.id === 'connectionSvg') {
+                isPanning = true;
+                panStart.x = e.clientX - panOffset.x;
+                panStart.y = e.clientY - panOffset.y;
+            }
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (draggedEmployee) {
+                const rect = canvas.getBoundingClientRect();
+                const emp = employees.find(e => e.id === draggedEmployee);
+                emp.x = e.clientX - rect.left - offset.x - panOffset.x;
+                emp.y = e.clientY - rect.top - offset.y - panOffset.y;
+                render();
+            } else if (isPanning) {
+                panOffset.x = e.clientX - panStart.x;
+                panOffset.y = e.clientY - panStart.y;
+                render();
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            draggedEmployee = null;
+            isPanning = false;
+        });
+
+        function handleConnect(empId, event) {
+            event.stopPropagation();
+            
+            if (connectingFrom === null) {
+                connectingFrom = empId;
+                document.getElementById('statusBar').classList.add('show');
+                render();
+            } else {
+                if (connectingFrom !== empId) {
+                    const exists = connections.some(c => c.from === connectingFrom && c.to === empId);
+                    if (!exists) {
+                        connections.push({ from: connectingFrom, to: empId });
+                    }
+                }
+                connectingFrom = null;
+                document.getElementById('statusBar').classList.remove('show');
+                render();
+            }
+        }
+
+        function handleDelete(empId, event) {
+            event.stopPropagation();
+            employees = employees.filter(e => e.id !== empId);
+            connections = connections.filter(c => c.from !== empId && c.to !== empId);
+            render();
+        }
+
+        function clearAllConnections() {
+            connections = [];
+            render();
+        }
+
+        function showAddModal() {
+            document.getElementById('addModal').classList.add('show');
+        }
+
+        function hideAddModal() {
+            document.getElementById('addModal').classList.remove('show');
+            document.getElementById('empName').value = '';
+            document.getElementById('empPosition').value = '';
+        }
+
+        function addEmployee() {
+            const name = document.getElementById('empName').value.trim();
+            const position = document.getElementById('empPosition').value.trim();
+            
+            if (name && position) {
+                const newId = Math.max(...employees.map(e => e.id), 0) + 1;
+                employees.push({
+                    id: newId,
+                    name: name,
+                    position: position,
+                    x: 400 - panOffset.x,
+                    y: 300 - panOffset.y,
+                    color: colors[newId % colors.length]
+                });
+                hideAddModal();
+                render();
+            }
+        }
+
+        // Initial render
+        render();
+    </script>
+</body>
+</html>
